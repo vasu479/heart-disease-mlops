@@ -1,0 +1,6 @@
+apiVersion: v2
+name: heart-disease-api
+description: Optional Helm chart for the heart disease risk prediction API (MLOps AIMLCZG523 Assignment 01)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

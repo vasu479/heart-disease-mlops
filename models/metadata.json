@@ -1,0 +1,29 @@
+{
+  "best_model": "logistic_regression",
+  "mlflow_run_id": "63aadfc59cd349bb88e47ebdc4608129",
+  "metrics": {
+    "accuracy": 0.8852459016393442,
+    "precision": 0.8387096774193549,
+    "recall": 0.9285714285714286,
+    "f1_score": 0.8813559322033898,
+    "roc_auc": 0.9653679653679654
+  },
+  "best_params": {
+    "classifier__C": 0.1
+  },
+  "feature_columns": [
+    "age",
+    "trestbps",
+    "chol",
+    "thalach",
+    "oldpeak",
+    "sex",
+    "cp",
+    "fbs",
+    "restecg",
+    "exang",
+    "slope",
+    "ca",
+    "thal"
+  ]
+}

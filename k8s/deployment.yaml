@@ -1,0 +1,55 @@
+# Kubernetes Deployment for the heart disease prediction API.
+#
+# LOCAL (Minikube):
+#   eval $(minikube docker-env)          # point your shell's docker at minikube's daemon
+#   docker build -t heart-disease-api:latest .
+#   kubectl apply -f k8s/deployment.yaml -f k8s/service.yaml
+#
+# LOCAL (Docker Desktop Kubernetes): same as above, minus the `minikube docker-env` step.
+#
+# CLOUD (EKS/GKE/AKS):
+#   docker build -t <your-registry>/heart-disease-api:latest .
+#   docker push <your-registry>/heart-disease-api:latest
+#   # then change `image:` below to <your-registry>/heart-disease-api:latest
+#   # and change imagePullPolicy to Always
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heart-disease-api
+  labels:
+    app: heart-disease-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: heart-disease-api
+  template:
+    metadata:
+      labels:
+        app: heart-disease-api
+    spec:
+      containers:
+        - name: heart-disease-api
+          image: friend479/heart-disease-api:latest
+          imagePullPolicy: Always  # set to Always once pushed to a real registry
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20

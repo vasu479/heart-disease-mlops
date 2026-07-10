@@ -1,0 +1,81 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-train-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install ruff
+
+      - name: Lint (ruff)
+        run: ruff check src/ tests/ data/ --line-length 110
+
+      - name: Download dataset
+        env:
+          HEART_DATA_SOURCE: mirror
+        run: python data/download_data.py
+
+      - name: Train model (also serves as a reproducibility check)
+        run: python src/train.py
+
+      - name: Run EDA (generates figures used in the report)
+        run: python src/eda.py
+
+      - name: Unit tests
+        run: pytest tests/ -v
+
+      # If any of the steps above fail, the job stops here (default GitHub
+      # Actions behavior) and the run is marked red with the failing step's
+      # log — satisfies "pipeline must fail on code or test errors and give
+      # clear logs."
+
+      - name: Upload trained model + data as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-and-data
+          path: |
+            models/
+            data/heart_disease.csv
+            reports/
+
+  docker-build:
+    needs: lint-train-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download model + data artifacts from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: model-and-data
+
+      - name: Build Docker image (build validation)
+        run: docker build -t heart-disease-api:${{ github.sha }} .
+
+      - name: Smoke-test the built image
+        run: |
+          docker run -d --name api-smoke-test -p 8000:8000 heart-disease-api:${{ github.sha }}
+          for i in $(seq 1 10); do
+            sleep 2
+            if curl -sf http://localhost:8000/health; then echo "API is up"; break; fi
+          done
+          curl -sf -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"age":63,"sex":1,"cp":1,"trestbps":145,"chol":233,"fbs":1,"restecg":2,"thalach":150,"exang":0,"oldpeak":2.3,"slope":3,"ca":0,"thal":6}'
+          docker logs api-smoke-test
+          docker stop api-smoke-test

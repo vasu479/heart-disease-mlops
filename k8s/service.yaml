@@ -1,0 +1,20 @@
+# Exposes the heart-disease-api Deployment.
+#
+# Minikube: after `kubectl apply`, run `minikube tunnel` in a SEPARATE terminal
+#           (keep it running) or EXTERNAL-IP stays <pending> forever — this is
+#           the single most common "my deployment is broken" false alarm.
+#           Alternative without tunnel: `minikube service heart-disease-api`.
+# Docker Desktop Kubernetes: LoadBalancer resolves to localhost automatically.
+# Cloud (EKS/GKE/AKS): a real external IP/hostname is provisioned.
+apiVersion: v1
+kind: Service
+metadata:
+  name: heart-disease-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: heart-disease-api
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP

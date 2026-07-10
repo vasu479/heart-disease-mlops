@@ -1,0 +1,24 @@
+replicaCount: 2
+
+image:
+  repository: heart-disease-api
+  tag: latest
+  pullPolicy: Never   # switch to Always + a real registry path for cloud deployment
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  path: /health
+  readinessInitialDelay: 5
+  livenessInitialDelay: 15

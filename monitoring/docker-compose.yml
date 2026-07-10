@@ -1,0 +1,40 @@
+# Standalone local monitoring demo — deliberately decoupled from Task 7's
+# deployment target. Run this regardless of whether you deployed to Minikube
+# or a cloud K8s cluster for the rest of the assignment:
+#
+#   docker build -t heart-disease-api:latest .
+#   docker compose -f monitoring/docker-compose.yml up
+#
+# Then:
+#   API:        http://localhost:8000/docs
+#   Prometheus: http://localhost:9090
+#   Grafana:    http://localhost:3000  (login: admin / admin)
+#     -> Add data source: Prometheus, URL http://prometheus:9090
+#     -> Import monitoring/grafana_dashboard.json
+services:
+  api:
+    image: heart-disease-api:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus

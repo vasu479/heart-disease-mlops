@@ -1,0 +1,11 @@
+# Prometheus scrape config. Used by monitoring/docker-compose.yml for a local
+# monitoring demo that is completely decoupled from whichever deployment
+# target (Minikube/cloud) you pick for Task 7 — this satisfies Task 8 on its
+# own, standalone, with `docker-compose up`.
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "heart-disease-api"
+    static_configs:
+      - targets: ["api:8000"]   # service name from docker-compose.yml

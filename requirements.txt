@@ -1,0 +1,19 @@
+# Pinned against the versions this project was built and tested with
+# (verified via a full data -> train -> serve -> test run before submission).
+pandas==2.3.3
+numpy==2.4.4
+scikit-learn==1.8.0
+xgboost==3.3.0
+matplotlib==3.10.8
+seaborn==0.13.2
+mlflow==3.14.0
+joblib==1.5.3
+fastapi==0.139.0
+uvicorn[standard]==0.50.2
+pydantic==2.13.4
+prometheus-fastapi-instrumentator==8.0.2
+pytest==9.1.1
+httpx==0.28.1
+requests==2.33.1
+PyYAML==6.0.3
+ucimlrepo==0.0.7
