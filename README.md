@@ -1,7 +1,7 @@
 # Heart Disease Risk Prediction — MLOps Pipeline
 
-**MLOps AIMLCZG523 — Assignment 01**
-End-to-end pipeline: data acquisition, EDA,
+**MLOps AIMLCZG523 — Assignment 01**.
+##End-to-end pipeline: data acquisition, EDA,
 model training with experiment tracking, containerized serving API, CI/CD,
 Kubernetes deployment, and monitoring.
 
