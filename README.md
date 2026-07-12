@@ -4,11 +4,9 @@ MLOps AIMLCZG523 — Assignment 01. End-to-end pipeline: data acquisition, EDA,
 model training with experiment tracking, containerized serving API, CI/CD,
 Kubernetes deployment, and monitoring.
 
-> **Before you submit this**: read `ACADEMIC_INTEGRITY_README.md`
-
 ![Architecture](reports/figures/architecture1.png)
 
-## Results (this run)
+## Results 
 
 | Model | Accuracy | Precision | Recall | F1 | ROC-AUC | CV best ROC-AUC |
 |---|---|---|---|---|---|---|
@@ -16,16 +14,12 @@ Kubernetes deployment, and monitoring.
 | XGBoost | 0.885 | 0.862 | 0.893 | 0.877 | 0.949 | 0.882 |
 | Random Forest | 0.852 | 0.828 | 0.857 | 0.842 | 0.947 | **0.904** |
 
-Full numbers: `reports/model_comparison.csv` (regenerated every run — yours
-will differ slightly from this table since it depends on which data source
-tier your machine/CI actually reached, see "Data source fallback" below).
 **Best model selected by test ROC-AUC: Logistic Regression.**
 
-Worth noting in your report: Random Forest had the *highest* cross-validation
+Random Forest had the *highest* cross-validation
 score but a *lower* held-out test score than Logistic Regression. With only
 ~61 test rows, rank order between CV score and test score isn't guaranteed to
-agree — that's sampling variance, not a bug, and it's a legitimate point to
-discuss in your model-selection writeup.
+agree — that's sampling variance.
 
 ## Project structure
 
@@ -73,15 +67,11 @@ pytest tests/ -v
 2. Direct HTTPS pull from UCI's static file host.
 3. A GitHub mirror of the identical raw file (last resort).
 
-On a normal laptop/CI runner with unrestricted internet, expect tier 1 to
-succeed. If your network blocks it, tier 3 gives you the exact same 303-row,
-14-column Cleveland dataset with the same 6 missing values (`ca`: 4, `thal`: 2).
-
 ### View MLflow results
 
 ```bash
 mlflow ui --backend-store-uri sqlite:///mlflow.db
-# open http://localhost:5000 — screenshot this for your report
+# open http://localhost:5000 
 ```
 
 ### Run the API locally (no Docker)
@@ -101,7 +91,7 @@ curl -X POST http://localhost:8000/predict \
 ### Docker
 
 ```bash
-python src/train.py                       # model must exist BEFORE building the image
+python src/train.py                       
 docker build -t heart-disease-api:latest .
 docker run -p 8000:8000 heart-disease-api:latest
 curl http://localhost:8000/health
@@ -110,21 +100,16 @@ curl http://localhost:8000/health
 ### Kubernetes (Minikube)
 
 ```bash
-eval $(minikube docker-env)                # so Minikube can see the locally built image
+eval $(minikube docker-env)               
 docker build -t heart-disease-api:latest .
 kubectl apply -f k8s/deployment.yaml -f k8s/service.yaml
-minikube tunnel                            # separate terminal, keep running — see note below
+minikube tunnel                           
 kubectl get pods,svc
 ```
 **LoadBalancer `EXTERNAL-IP` stays `<pending>` on plain Minikube unless
 `minikube tunnel` is running in another terminal.** This is the single most
 common "my deployment is broken" false alarm on this assignment — it isn't
 broken, the tunnel just isn't up.
-
-Optional Helm chart: `k8s/helm/heart-disease-api/` (install with
-`helm install heart-demo k8s/helm/heart-disease-api/`). Not validated with
-`helm lint` in this build environment (no `helm` binary available here) —
-run that yourself before you rely on it.
 
 ### Monitoring (standalone, decoupled from Task 7's deployment choice)
 
@@ -144,7 +129,7 @@ artifact -> docker build -> containerized smoke test`. Any failing step stops
 the pipeline and shows a red X with that step's log — nothing downstream
 silently continues on a broken build.
 
-## Design decisions worth knowing about (and worth changing if you want this to be genuinely yours)
+## Design decisions:
 
 - **Preprocessing lives inside the same `Pipeline` as the classifier** (not
   saved separately), so there is no train/serve skew and no risk of applying
@@ -154,11 +139,9 @@ silently continues on a broken build.
   "binary target" requirement.
 - **MLflow 3.x** deprecated the plain filesystem tracking store used in most
   older tutorials — this project uses a SQLite-backed store
-  (`sqlite:///mlflow.db`) instead. If you followed an older MLflow tutorial
-  and got a "file store is not supported" error, this is why.
+  (`sqlite:///mlflow.db`) instead. 
 - **`mlflow.sklearn.log_model` defaults to `skops` serialization** (not
   pickle) as of MLflow 3.x, and blocks numpy/xgboost internal types unless
-  explicitly trusted via `skops_trusted_types`. Also newly relevant if you're
-  following older guides.
+  explicitly trusted via `skops_trusted_types`.
 - Model selection is by **test-set ROC-AUC**, not CV score — see the results
   table above for why that distinction actually mattered on this run.
