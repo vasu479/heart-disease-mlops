@@ -8,7 +8,7 @@ Kubernetes deployment, and monitoring.
 > was scaffolded with AI assistance and needs your own decisions layered on
 > top before it's yours to hand in.
 
-![Architecture](reports/figures/architecture.png)
+![Architecture](reports/figures/architecture1.png)
 
 ## Results (this run)
 
