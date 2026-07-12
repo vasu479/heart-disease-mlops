@@ -4,9 +4,7 @@ MLOps AIMLCZG523 — Assignment 01. End-to-end pipeline: data acquisition, EDA,
 model training with experiment tracking, containerized serving API, CI/CD,
 Kubernetes deployment, and monitoring.
 
-> **Before you submit this**: read `ACADEMIC_INTEGRITY_README.md` — this repo
-> was scaffolded with AI assistance and needs your own decisions layered on
-> top before it's yours to hand in.
+> **Before you submit this**: read `ACADEMIC_INTEGRITY_README.md`
 
 ![Architecture](reports/figures/architecture1.png)
 
